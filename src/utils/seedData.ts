@@ -1,0 +1,240 @@
+import { LocationItem, Review, Category } from '../types';
+
+export const INITIAL_CATEGORIES: Category[] = [
+  { id: 'cat-1', name: 'Study', iconName: 'BookOpen', description: 'Quiet hubs, campus libraries, & study cafes', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+  { id: 'cat-2', name: 'Food', iconName: 'Utensils', description: 'Budget eateries, student discounts, & late-night bites', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+  { id: 'cat-3', name: 'Wi-Fi', iconName: 'Wifi', description: 'High-speed public networks & work-friendly spots', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+  { id: 'cat-4', name: 'Repair', iconName: 'Wrench', description: 'Affordable laptop, phone, & bike repair services', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+  { id: 'cat-5', name: 'Shopping', iconName: 'ShoppingBag', description: 'Thrift stores, stationery, & discount grocery markets', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+  { id: 'cat-6', name: 'Healthcare', iconName: 'HeartPulse', description: 'Student health clinics, pharmacies, & urgent care', color: 'bg-rose-100 text-rose-800 border-rose-200' },
+  { id: 'cat-7', name: 'Transport', iconName: 'Bus', description: 'Transit stops, shuttle hubs, & bike sharing spots', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+  { id: 'cat-8', name: 'Other', iconName: 'MapPin', description: 'Community spaces, parks, & general campus resources', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+];
+
+export const INITIAL_LOCATIONS: LocationItem[] = [
+  {
+    id: 'loc-1',
+    name: 'Quiet Study Hub',
+    description: 'Spacious 24/7 student reading room equipped with silent zones, power outlets at every desk, and climate control. Perfect for exam prep.',
+    category: 'Study',
+    address: '45 University Ave, Central Campus, Floor 2',
+    latitude: 42.3601,
+    longitude: -71.0589,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3601,-71.0589',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-alex',
+    createdByName: 'Alex Chen',
+    createdAt: '2026-08-15T10:30:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.8,
+    reviewCount: 14,
+    isActive: true,
+  },
+  {
+    id: 'loc-2',
+    name: 'Student Budget Bites',
+    description: 'Generous portion meals under $8. Offers 15% student discount with valid ID. Known for healthy bowls and fresh smoothies.',
+    category: 'Food',
+    address: '112 College Street, West Side',
+    latitude: 42.3625,
+    longitude: -71.0650,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3625,-71.0650',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-maria',
+    createdByName: 'Maria Santos',
+    createdAt: '2026-08-18T14:15:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.6,
+    reviewCount: 22,
+    isActive: true,
+  },
+  {
+    id: 'loc-3',
+    name: 'Free Wi-Fi Corner',
+    description: 'High-speed public fiber connection (up to 300 Mbps). Outdoor shaded seating with solar charging benches.',
+    category: 'Wi-Fi',
+    address: 'Civic Plaza Green, East Wing Benches',
+    latitude: 42.3585,
+    longitude: -71.0540,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3585,-71.0540',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-devon',
+    createdByName: 'Devon Vance',
+    createdAt: '2026-08-20T09:00:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.5,
+    reviewCount: 9,
+    isActive: true,
+  },
+  {
+    id: 'loc-4',
+    name: 'Affordable Laptop Repair',
+    description: 'Certified student technician repair lab. Quick turnaround for screen replacement, RAM upgrades, battery replacements, and virus removal.',
+    category: 'Repair',
+    address: '88 Tech Arcade, Sub-level 1',
+    latitude: 42.3540,
+    longitude: -71.0610,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3540,-71.0610',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-sam',
+    createdByName: 'Sam Taylor',
+    createdAt: '2026-08-22T11:45:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.9,
+    reviewCount: 18,
+    isActive: true,
+  },
+  {
+    id: 'loc-5',
+    name: 'Community Library',
+    description: 'Public municipal library with extensive research archives, free digital book lending, group study rooms, and 3D printing services.',
+    category: 'Study',
+    address: '700 Main Street, Cultural District',
+    latitude: 42.3650,
+    longitude: -71.0510,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3650,-71.0510',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-elena',
+    createdByName: 'Elena Rostova',
+    createdAt: '2026-08-25T16:20:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.7,
+    reviewCount: 31,
+    isActive: true,
+  },
+  {
+    id: 'loc-6',
+    name: 'Student Health Centre',
+    description: 'Walk-in wellness clinic for students with valid healthcare cards. Low-cost vaccinations, general consultation, and prescription pickups.',
+    category: 'Healthcare',
+    address: '200 Health Sciences Way, North Wing',
+    latitude: 42.3570,
+    longitude: -71.0690,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3570,-71.0690',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-jordan',
+    createdByName: 'Jordan Lee',
+    createdAt: '2026-08-26T08:10:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.4,
+    reviewCount: 8,
+    isActive: true,
+  },
+  {
+    id: 'loc-7',
+    name: 'Local Printing Point',
+    description: 'Self-service cloud printing kiosk. Offers poster printing, spiral binding, and cheap per-page black & white copying.',
+    category: 'Other',
+    address: 'Student Union Mall, Kiosk 4',
+    latitude: 42.3590,
+    longitude: -71.0600,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3590,-71.0600',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-priya',
+    createdByName: 'Priya Sharma',
+    createdAt: '2026-08-27T13:00:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.3,
+    reviewCount: 11,
+    isActive: true,
+  },
+  {
+    id: 'loc-8',
+    name: 'Bus Connectivity Point',
+    description: 'Major central transit interchange connecting 6 city bus routes with direct express shuttles to all major college campuses.',
+    category: 'Transport',
+    address: 'Central Station Bay 3 & 4',
+    latitude: 42.3520,
+    longitude: -71.0560,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3520,-71.0560',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-liam',
+    createdByName: 'Liam O\'Connor',
+    createdAt: '2026-08-28T17:30:00Z',
+    verificationStatus: 'APPROVED',
+    averageRating: 4.2,
+    reviewCount: 6,
+    isActive: true,
+  },
+  {
+    id: 'loc-9',
+    name: 'Midnight Study Cafe & Bakery',
+    description: 'Pending community submission: Late night espresso bar open until 3 AM with free high-speed Wi-Fi and plenty of wall outlets.',
+    category: 'Study',
+    address: '304 Elm Street, South Campus',
+    latitude: 42.3560,
+    longitude: -71.0630,
+    googleMapsUrl: 'https://maps.google.com/?q=42.3560,-71.0630',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80'
+    ],
+    createdBy: 'user-chloe',
+    createdByName: 'Chloe Bennett',
+    createdAt: '2026-08-30T10:00:00Z',
+    verificationStatus: 'PENDING',
+    averageRating: 0,
+    reviewCount: 0,
+    isActive: true,
+  }
+];
+
+export const INITIAL_REVIEWS: Review[] = [
+  {
+    id: 'rev-1',
+    locationId: 'loc-1',
+    userId: 'user-sarah',
+    userName: 'Sarah Jenkins',
+    rating: 5,
+    comment: 'Absolute lifesaver during finals week! Plenty of power outlets and ultra quiet.',
+    createdAt: '2026-08-16T14:20:00Z',
+    status: 'APPROVED'
+  },
+  {
+    id: 'rev-2',
+    locationId: 'loc-1',
+    userId: 'user-david',
+    userName: 'David Miller',
+    rating: 4,
+    comment: 'Great atmosphere and fast internet. Can get crowded after 4 PM though.',
+    createdAt: '2026-08-21T09:15:00Z',
+    status: 'APPROVED'
+  },
+  {
+    id: 'rev-3',
+    locationId: 'loc-2',
+    userId: 'user-hannah',
+    userName: 'Hannah Kim',
+    rating: 5,
+    comment: 'The 15% student discount is real! The chicken avocado bowl is delicious and cheap.',
+    createdAt: '2026-08-19T18:40:00Z',
+    status: 'APPROVED'
+  },
+  {
+    id: 'rev-4',
+    locationId: 'loc-4',
+    userId: 'user-alex',
+    userName: 'Alex Student',
+    rating: 2,
+    comment: 'Pending admin approval: Technician took 4 days instead of promised 2 days.',
+    createdAt: '2026-08-30T12:00:00Z',
+    status: 'PENDING'
+  }
+];
