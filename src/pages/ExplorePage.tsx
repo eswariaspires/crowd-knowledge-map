@@ -1,23 +1,25 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { 
   Search, 
   X, 
-  Filter, 
   MapPin, 
   Star, 
   ShieldCheck, 
   List, 
   Map as MapIcon, 
-  SlidersHorizontal,
-  RotateCcw
+  RotateCcw,
+  Navigation,
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
 import { MapView } from '../components/map/MapView';
 import { LocationCard } from '../components/locations/LocationCard';
-import { LocationItem, CategoryName } from '../types';
+import { LocationItem } from '../types';
+import { Badge } from '../components/common/Badge';
 
 export const ExplorePage: React.FC = () => {
   const { locations, categories, loading } = useData();
@@ -32,6 +34,11 @@ export const ExplorePage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'newest' | 'rating' | 'reviews'>('rating');
   const [selectedLocation, setSelectedLocation] = useState<LocationItem | null>(null);
 
+  // User Geolocation State
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [geoLocating, setGeoLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
   // Mobile View Toggle
   const [mobileTab, setMobileTab] = useState<'list' | 'map'>('list');
 
@@ -40,11 +47,33 @@ export const ExplorePage: React.FC = () => {
     if (cat) setSelectedCategory(cat);
   }, [searchParams]);
 
+  // Handle Geolocation Request (Requirement 10)
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setGeoLocating(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation([pos.coords.latitude, pos.coords.longitude]);
+        setGeoLocating(false);
+      },
+      (err) => {
+        console.warn('Geolocation error:', err.message);
+        setGeoError('Unable to access location. You can continue exploring manually.');
+        setGeoLocating(false);
+      },
+      { timeout: 8000 }
+    );
+  };
+
   // Filter & Sort Logic
   const filteredLocations = useMemo(() => {
     return locations
       .filter((loc) => {
-        // Show APPROVED locations publicly (or PENDING if user submitted, but per requirements default public view is APPROVED)
+        // Show APPROVED locations publicly
         if (verifiedOnly && loc.verificationStatus !== 'APPROVED') return false;
 
         // Category filter
@@ -90,16 +119,18 @@ export const ExplorePage: React.FC = () => {
 
   const mapCenter: [number, number] = selectedLocation
     ? [selectedLocation.latitude, selectedLocation.longitude]
+    : userLocation
+    ? userLocation
     : [42.3601, -71.0589];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfbf8]">
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        {/* Top Search Bar & Controls */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-xs space-y-4">
+        {/* Search & Filter Header Bar */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 mb-6 shadow-sm space-y-4">
           
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
             {/* Search Input */}
@@ -109,8 +140,8 @@ export const ExplorePage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search places, services or resources... (e.g., Quiet Study, Cheap Food, Wi-Fi, Repair)"
-                className="w-full text-sm pl-11 pr-10 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-900 placeholder-slate-400 font-medium"
+                placeholder="Search places, services, or something useful nearby..."
+                className="w-full text-sm pl-11 pr-10 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-900 placeholder:text-slate-400 font-medium"
               />
               {searchQuery && (
                 <button
@@ -122,12 +153,22 @@ export const ExplorePage: React.FC = () => {
               )}
             </div>
 
+            {/* Geolocation Button */}
+            <button
+              onClick={handleUseMyLocation}
+              disabled={geoLocating}
+              className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-colors shrink-0"
+            >
+              <Navigation className={`w-4 h-4 text-brand-600 ${geoLocating ? 'animate-spin' : ''}`} />
+              <span>{geoLocating ? 'Finding location...' : 'Use my location'}</span>
+            </button>
+
             {/* Mobile Tab Switcher */}
-            <div className="flex md:hidden items-center bg-slate-100 p-1 rounded-xl">
+            <div className="flex md:hidden items-center bg-slate-100 p-1 rounded-xl shrink-0">
               <button
                 onClick={() => setMobileTab('list')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 ${
-                  mobileTab === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 ${
+                  mobileTab === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -135,42 +176,48 @@ export const ExplorePage: React.FC = () => {
               </button>
               <button
                 onClick={() => setMobileTab('map')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 ${
-                  mobileTab === 'map' ? 'bg-brand-700 text-white shadow-xs' : 'text-slate-600'
+                className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 ${
+                  mobileTab === 'map' ? 'bg-brand-700 text-white shadow-sm' : 'text-slate-600'
                 }`}
               >
                 <MapIcon className="w-4 h-4" />
-                <span>Map View</span>
+                <span>Map</span>
               </button>
             </div>
           </div>
 
-          {/* Quick Category Chips */}
+          {geoError && (
+            <p className="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg font-medium">
+              {geoError}
+            </p>
+          )}
+
+          {/* Category Navigation Chips */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             <button
               onClick={() => {
                 setSelectedCategory('ALL');
                 setSearchParams({});
               }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                 selectedCategory === 'ALL'
                   ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               All Categories
             </button>
-            {categories.map((cat) => (
+            {categories.filter(c => c.isActive !== false).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => {
                   setSelectedCategory(cat.name);
                   setSearchParams({ category: cat.name });
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat.name
                     ? 'bg-brand-700 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {cat.name}
@@ -178,11 +225,10 @@ export const ExplorePage: React.FC = () => {
             ))}
           </div>
 
-          {/* Expanded Filter Panel */}
+          {/* Filter Bar Controls */}
           <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs font-medium text-slate-600">
             
             <div className="flex flex-wrap items-center gap-4">
-              {/* Min Rating */}
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-slate-700">Min Rating:</span>
                 <select
@@ -197,7 +243,6 @@ export const ExplorePage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Verified Filter */}
               <label className="flex items-center gap-1.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -211,7 +256,6 @@ export const ExplorePage: React.FC = () => {
                 </span>
               </label>
 
-              {/* Sort By */}
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-slate-700">Sort By:</span>
                 <select
@@ -238,33 +282,38 @@ export const ExplorePage: React.FC = () => {
 
         </div>
 
-        {/* Desktop Split View / Mobile Tab View */}
+        {/* Split View Content */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Left Column: Location Cards List */}
+          {/* Left Column: Location Cards */}
           <div className={`lg:col-span-6 space-y-4 ${mobileTab === 'map' ? 'hidden lg:block' : 'block'}`}>
             <div className="flex items-center justify-between px-1">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Found {filteredLocations.length} Community {filteredLocations.length === 1 ? 'Location' : 'Locations'}
+                Showing {filteredLocations.length} {filteredLocations.length === 1 ? 'place' : 'places'}
               </p>
             </div>
 
             {loading ? (
               <div className="space-y-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200 animate-pulse h-40"></div>
+                  <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200/80 animate-pulse h-40"></div>
                 ))}
               </div>
             ) : filteredLocations.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-                <MapPin className="w-10 h-10 text-slate-300 mx-auto" />
-                <h3 className="text-base font-bold text-slate-800">No matching locations found</h3>
-                <p className="text-xs text-slate-500">Try clearing your filters or searching for broader terms like "study" or "food".</p>
+              /* Intentional Empty State (Requirement 46) */
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-10 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                  <Search className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">We couldn't find anything matching that search.</h3>
+                <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+                  Try adjusting your search terms or clearing filters to discover places around you.
+                </p>
                 <button
                   onClick={handleResetFilters}
-                  className="px-4 py-2 bg-brand-700 text-white font-bold text-xs rounded-xl"
+                  className="px-4 py-2 bg-brand-700 text-white font-semibold text-xs rounded-xl hover:bg-brand-800 transition-colors shadow-sm"
                 >
-                  Clear Filters
+                  Clear search & filters
                 </button>
               </div>
             ) : (
@@ -284,17 +333,74 @@ export const ExplorePage: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Leaflet Map */}
+          {/* Right Column: Leaflet Map & Selected Location Preview Drawer */}
           <div className={`lg:col-span-6 sticky top-20 ${mobileTab === 'list' ? 'hidden lg:block' : 'block'}`}>
-            <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm h-[calc(100vh-220px)] min-h-[450px]">
-              <MapView
-                locations={filteredLocations}
-                center={mapCenter}
-                zoom={13}
-                selectedLocationId={selectedLocation?.id}
-                onMarkerClick={(loc) => setSelectedLocation(loc)}
-                height="100%"
-              />
+            <div className="bg-white rounded-2xl p-2 border border-slate-200/80 shadow-sm h-[calc(100vh-220px)] min-h-[480px] relative flex flex-col">
+              <div className="flex-1 rounded-xl overflow-hidden">
+                <MapView
+                  locations={filteredLocations}
+                  center={mapCenter}
+                  zoom={13}
+                  selectedLocationId={selectedLocation?.id}
+                  onMarkerClick={(loc) => setSelectedLocation(loc)}
+                  height="100%"
+                />
+              </div>
+
+              {/* Location Preview Card (Requirement 12) */}
+              {selectedLocation && (
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-slate-200/90 shadow-xl z-20 transition-all animate-in slide-in-from-bottom-2">
+                  <button
+                    onClick={() => setSelectedLocation(null)}
+                    className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex gap-4 items-start">
+                    <img
+                      src={selectedLocation.imageUrls[0] || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80'}
+                      alt={selectedLocation.name}
+                      className="w-20 h-20 rounded-xl object-cover border border-slate-200 shrink-0"
+                    />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge category={selectedLocation.category} />
+                        {selectedLocation.verificationStatus === 'APPROVED' && (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            Verified
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className="font-bold text-slate-900 text-sm truncate">
+                        {selectedLocation.name}
+                      </h4>
+
+                      <p className="text-xs text-slate-500 truncate mb-1">
+                        {selectedLocation.address}
+                      </p>
+
+                      <div className="flex items-center gap-1 text-xs font-bold text-amber-700 mb-2">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>{selectedLocation.averageRating}</span>
+                        <span className="text-slate-400 text-[11px] font-normal">
+                          ({selectedLocation.reviewCount} reviews)
+                        </span>
+                      </div>
+
+                      <Link
+                        to={`/location/${selectedLocation.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs transition-colors shadow-sm"
+                      >
+                        <span>View place</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

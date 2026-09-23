@@ -1,23 +1,23 @@
 import { LocationItem, Review, Category } from '../types';
 
 export const INITIAL_CATEGORIES: Category[] = [
-  { id: 'cat-1', name: 'Study', iconName: 'BookOpen', description: 'Quiet hubs, campus libraries, & study cafes', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-  { id: 'cat-2', name: 'Food', iconName: 'Utensils', description: 'Budget eateries, student discounts, & late-night bites', color: 'bg-amber-100 text-amber-800 border-amber-200' },
-  { id: 'cat-3', name: 'Wi-Fi', iconName: 'Wifi', description: 'High-speed public networks & work-friendly spots', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  { id: 'cat-4', name: 'Repair', iconName: 'Wrench', description: 'Affordable laptop, phone, & bike repair services', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  { id: 'cat-5', name: 'Shopping', iconName: 'ShoppingBag', description: 'Thrift stores, stationery, & discount grocery markets', color: 'bg-purple-100 text-purple-800 border-purple-200' },
-  { id: 'cat-6', name: 'Healthcare', iconName: 'HeartPulse', description: 'Student health clinics, pharmacies, & urgent care', color: 'bg-rose-100 text-rose-800 border-rose-200' },
-  { id: 'cat-7', name: 'Transport', iconName: 'Bus', description: 'Transit stops, shuttle hubs, & bike sharing spots', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-  { id: 'cat-8', name: 'Other', iconName: 'MapPin', description: 'Community spaces, parks, & general campus resources', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+  { id: 'cat-1', name: 'Study', iconName: 'BookOpen', description: 'Quiet reading rooms, public libraries, & workspace cafes', color: 'bg-emerald-100 text-emerald-800 border-emerald-200', isActive: true },
+  { id: 'cat-2', name: 'Food', iconName: 'Utensils', description: 'Affordable eateries, local dining, & quick bites', color: 'bg-amber-100 text-amber-800 border-amber-200', isActive: true },
+  { id: 'cat-3', name: 'Wi-Fi', iconName: 'Wifi', description: 'High-speed public networks & work-friendly spots', color: 'bg-blue-100 text-blue-800 border-blue-200', isActive: true },
+  { id: 'cat-4', name: 'Repair', iconName: 'Wrench', description: 'Affordable laptop, phone, & hardware repair services', color: 'bg-orange-100 text-orange-800 border-orange-200', isActive: true },
+  { id: 'cat-5', name: 'Shopping', iconName: 'ShoppingBag', description: 'Thrift stores, stationery, & local grocery markets', color: 'bg-purple-100 text-purple-800 border-purple-200', isActive: true },
+  { id: 'cat-6', name: 'Healthcare', iconName: 'HeartPulse', description: 'Community health clinics, pharmacies, & urgent care', color: 'bg-rose-100 text-rose-800 border-rose-200', isActive: true },
+  { id: 'cat-7', name: 'Transport', iconName: 'Bus', description: 'Transit stops, shuttle hubs, & bike sharing stations', color: 'bg-indigo-100 text-indigo-800 border-indigo-200', isActive: true },
+  { id: 'cat-8', name: 'Other', iconName: 'MapPin', description: 'Community spaces, public parks, & civic resources', color: 'bg-slate-100 text-slate-800 border-slate-200', isActive: true },
 ];
 
 export const INITIAL_LOCATIONS: LocationItem[] = [
   {
     id: 'loc-1',
     name: 'Quiet Study Hub',
-    description: 'Spacious 24/7 student reading room equipped with silent zones, power outlets at every desk, and climate control. Perfect for exam prep.',
+    description: 'Spacious reading room equipped with silent zones, power outlets at every desk, and climate control. Ideal for deep work and concentration.',
     category: 'Study',
-    address: '45 University Ave, Central Campus, Floor 2',
+    address: '45 University Ave, Central District, Floor 2',
     latitude: 42.3601,
     longitude: -71.0589,
     googleMapsUrl: 'https://maps.google.com/?q=42.3601,-71.0589',
@@ -35,8 +35,8 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-2',
-    name: 'Student Budget Bites',
-    description: 'Generous portion meals under $8. Offers 15% student discount with valid ID. Known for healthy bowls and fresh smoothies.',
+    name: 'Affordable Community Eatery',
+    description: 'Generous portion meals under $10. Fresh ingredients, healthy grain bowls, and daily fresh smoothies in a clean setting.',
     category: 'Food',
     address: '112 College Street, West Side',
     latitude: 42.3625,
@@ -56,7 +56,7 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-3',
-    name: 'Free Wi-Fi Corner',
+    name: 'Free Public Wi-Fi Corner',
     description: 'High-speed public fiber connection (up to 300 Mbps). Outdoor shaded seating with solar charging benches.',
     category: 'Wi-Fi',
     address: 'Civic Plaza Green, East Wing Benches',
@@ -76,8 +76,8 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-4',
-    name: 'Affordable Laptop Repair',
-    description: 'Certified student technician repair lab. Quick turnaround for screen replacement, RAM upgrades, battery replacements, and virus removal.',
+    name: 'Laptop & Electronics Repair',
+    description: 'Certified hardware repair shop. Quick turnaround for screen replacement, RAM upgrades, battery replacements, and virus removal.',
     category: 'Repair',
     address: '88 Tech Arcade, Sub-level 1',
     latitude: 42.3540,
@@ -96,8 +96,8 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-5',
-    name: 'Community Library',
-    description: 'Public municipal library with extensive research archives, free digital book lending, group study rooms, and 3D printing services.',
+    name: 'Community Public Library',
+    description: 'Public municipal library with extensive research archives, free digital book lending, quiet workspace rooms, and printing services.',
     category: 'Study',
     address: '700 Main Street, Cultural District',
     latitude: 42.3650,
@@ -116,8 +116,8 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-6',
-    name: 'Student Health Centre',
-    description: 'Walk-in wellness clinic for students with valid healthcare cards. Low-cost vaccinations, general consultation, and prescription pickups.',
+    name: 'Community Healthcare Centre',
+    description: 'Walk-in wellness clinic for local residents. Consultations, vaccinations, general health checks, and prescription services.',
     category: 'Healthcare',
     address: '200 Health Sciences Way, North Wing',
     latitude: 42.3570,
@@ -136,10 +136,10 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-7',
-    name: 'Local Printing Point',
-    description: 'Self-service cloud printing kiosk. Offers poster printing, spiral binding, and cheap per-page black & white copying.',
+    name: 'Self-Service Printing Point',
+    description: 'Self-service cloud printing kiosk. Offers poster printing, document scanning, binding, and low-cost black & white copying.',
     category: 'Other',
-    address: 'Student Union Mall, Kiosk 4',
+    address: 'Civic Center Mall, Kiosk 4',
     latitude: 42.3590,
     longitude: -71.0600,
     googleMapsUrl: 'https://maps.google.com/?q=42.3590,-71.0600',
@@ -156,8 +156,8 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-8',
-    name: 'Bus Connectivity Point',
-    description: 'Major central transit interchange connecting 6 city bus routes with direct express shuttles to all major college campuses.',
+    name: 'Central Transit Hub',
+    description: 'Major transit interchange connecting 6 city bus routes with direct express connections to key city areas.',
     category: 'Transport',
     address: 'Central Station Bay 3 & 4',
     latitude: 42.3520,
@@ -176,10 +176,10 @@ export const INITIAL_LOCATIONS: LocationItem[] = [
   },
   {
     id: 'loc-9',
-    name: 'Midnight Study Cafe & Bakery',
-    description: 'Pending community submission: Late night espresso bar open until 3 AM with free high-speed Wi-Fi and plenty of wall outlets.',
+    name: 'Late Night Workspace Cafe',
+    description: 'Coffee shop open until 2 AM with high-speed Wi-Fi, plentiful power outlets, and artisanal coffee.',
     category: 'Study',
-    address: '304 Elm Street, South Campus',
+    address: '304 Elm Street, South District',
     latitude: 42.3560,
     longitude: -71.0630,
     googleMapsUrl: 'https://maps.google.com/?q=42.3560,-71.0630',
@@ -203,7 +203,7 @@ export const INITIAL_REVIEWS: Review[] = [
     userId: 'user-sarah',
     userName: 'Sarah Jenkins',
     rating: 5,
-    comment: 'Absolute lifesaver during finals week! Plenty of power outlets and ultra quiet.',
+    comment: 'Great quiet atmosphere! Plenty of power outlets and ultra fast Wi-Fi.',
     createdAt: '2026-08-16T14:20:00Z',
     status: 'APPROVED'
   },
@@ -213,7 +213,7 @@ export const INITIAL_REVIEWS: Review[] = [
     userId: 'user-david',
     userName: 'David Miller',
     rating: 4,
-    comment: 'Great atmosphere and fast internet. Can get crowded after 4 PM though.',
+    comment: 'Great workspace atmosphere and fast internet. Can get busy after 4 PM.',
     createdAt: '2026-08-21T09:15:00Z',
     status: 'APPROVED'
   },
@@ -223,7 +223,7 @@ export const INITIAL_REVIEWS: Review[] = [
     userId: 'user-hannah',
     userName: 'Hannah Kim',
     rating: 5,
-    comment: 'The 15% student discount is real! The chicken avocado bowl is delicious and cheap.',
+    comment: 'Generous portions and very affordable. The chicken avocado bowl is fantastic!',
     createdAt: '2026-08-19T18:40:00Z',
     status: 'APPROVED'
   },
@@ -231,9 +231,9 @@ export const INITIAL_REVIEWS: Review[] = [
     id: 'rev-4',
     locationId: 'loc-4',
     userId: 'user-alex',
-    userName: 'Alex Student',
+    userName: 'Alex Chen',
     rating: 2,
-    comment: 'Pending admin approval: Technician took 4 days instead of promised 2 days.',
+    comment: 'Technician took 4 days instead of promised 2 days, but screen repair quality was good.',
     createdAt: '2026-08-30T12:00:00Z',
     status: 'PENDING'
   }

@@ -10,7 +10,7 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
-export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'NEEDS_CHANGES';
 
 export type CategoryName =
   | 'Study'
@@ -28,6 +28,7 @@ export interface Category {
   iconName: string;
   description: string;
   color: string;
+  isActive?: boolean;
 }
 
 export interface LocationItem {
@@ -49,6 +50,13 @@ export interface LocationItem {
   averageRating: number;
   reviewCount: number;
   isActive: boolean;
+}
+
+export interface SavedPlace {
+  id: string;
+  userId: string;
+  locationId: string;
+  createdAt: string;
 }
 
 export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -92,3 +100,4 @@ export interface FilterState {
   searchQuery: string;
   sortBy: 'newest' | 'rating' | 'reviews';
 }
+

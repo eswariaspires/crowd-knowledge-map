@@ -8,7 +8,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  BookOpen
+  BookOpen,
+  Bookmark
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -137,6 +138,14 @@ export const Navbar: React.FC = () => {
                         My Profile
                       </Link>
                       <Link
+                        to="/saved"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                      >
+                        <Bookmark className="w-4 h-4 text-slate-400" />
+                        Saved Places
+                      </Link>
+                      <Link
                         to="/my-contributions"
                         onClick={() => setProfileDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -234,6 +243,13 @@ export const Navbar: React.FC = () => {
                 className="block py-2 text-base font-medium text-slate-700"
               >
                 Profile ({user.name})
+              </Link>
+              <Link
+                to="/saved"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-base font-medium text-slate-700"
+              >
+                Saved Places
               </Link>
               <Link
                 to="/my-contributions"

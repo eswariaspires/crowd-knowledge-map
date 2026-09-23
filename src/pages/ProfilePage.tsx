@@ -3,13 +3,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
-import { User as UserIcon, ShieldCheck, MapPin, MessageSquare, Camera, LogOut, CheckCircle2 } from 'lucide-react';
+import { User as UserIcon, ShieldCheck, MapPin, MessageSquare, Camera, LogOut, CheckCircle2, Bookmark, Settings, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { uploadImageToStorage } from '../services/storageService';
 
 export const ProfilePage: React.FC = () => {
   const { user, logout, updateProfileImage } = useAuth();
-  const { locations, reviews } = useData();
+  const { locations, reviews, getSavedLocations } = useData();
   const navigate = useNavigate();
 
   const [uploading, setUploading] = useState(false);
@@ -17,6 +17,7 @@ export const ProfilePage: React.FC = () => {
   const userLocations = locations.filter(l => l.createdBy === user?.uid || l.createdBy === 'user-alex');
   const approvedCount = userLocations.filter(l => l.verificationStatus === 'APPROVED').length;
   const userReviews = reviews.filter(r => r.userId === user?.uid || r.userId === 'user-sarah');
+  const savedLocations = user ? getSavedLocations(user.uid) : [];
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -36,14 +37,14 @@ export const ProfilePage: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfbf8]">
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
         
-        {/* User Card Banner */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="relative group">
+        {/* Profile Card Header */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <div className="relative group shrink-0">
             <img
               src={user.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
               alt={user.name}
@@ -58,7 +59,7 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2 text-center sm:text-left flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h1 className="text-2xl font-black text-slate-900">{user.name}</h1>
+                <h1 className="text-2xl font-extrabold text-slate-900">{user.name}</h1>
                 <p className="text-xs text-slate-500 font-medium">{user.email}</p>
               </div>
 
@@ -69,85 +70,105 @@ export const ProfilePage: React.FC = () => {
               </span>
             </div>
 
-            <p className="text-xs text-slate-400">
-              Joined CrowdMap on {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            <p className="text-xs text-slate-500">
+              Community member since {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </p>
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Overview Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-2xl font-black text-slate-900 block">{userLocations.length}</span>
-                <span className="text-xs text-slate-500 font-semibold">Total Contributions</span>
+                <span className="text-2xl font-extrabold text-slate-900 block">{userLocations.length}</span>
+                <span className="text-xs text-slate-500 font-semibold">Shared Places</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-xs bg-emerald-50/20">
+          <div className="bg-white p-5 rounded-2xl border border-amber-200/80 shadow-sm bg-amber-50/20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <Bookmark className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-2xl font-black text-emerald-900 block">{approvedCount}</span>
-                <span className="text-xs text-emerald-700 font-semibold">Approved & Live</span>
+                <span className="text-2xl font-extrabold text-amber-900 block">{savedLocations.length}</span>
+                <span className="text-xs text-amber-700 font-semibold">Saved Places</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-2xl font-black text-slate-900 block">{userReviews.length}</span>
+                <span className="text-2xl font-extrabold text-slate-900 block">{userReviews.length}</span>
                 <span className="text-xs text-slate-500 font-semibold">Reviews Written</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Quick Nav Options */}
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden divide-y divide-slate-100 shadow-xs">
-          <Link to="/my-contributions" className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors">
+        {/* Account Sections */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden divide-y divide-slate-100 shadow-sm">
+          
+          <Link to="/saved" className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors">
             <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-brand-700" />
+              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                <Bookmark className="w-4 h-4" />
+              </div>
               <div>
-                <h3 className="font-bold text-sm text-slate-900">My Contributions</h3>
-                <p className="text-xs text-slate-500">View and check status of places you submitted</p>
+                <h3 className="font-bold text-sm text-slate-900">Saved Places</h3>
+                <p className="text-xs text-slate-500">Bookmarked locations for quick access</p>
               </div>
             </div>
-            <span className="text-xs font-bold text-brand-700">Manage →</span>
+            <ArrowRight className="w-4 h-4 text-slate-400" />
+          </Link>
+
+          <Link to="/my-contributions" className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">My Contributions</h3>
+                <p className="text-xs text-slate-500">Track and manage places you have shared</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-400" />
           </Link>
 
           <Link to="/my-reviews" className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors">
             <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-amber-600" />
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4" />
+              </div>
               <div>
                 <h3 className="font-bold text-sm text-slate-900">My Reviews</h3>
-                <p className="text-xs text-slate-500">View rating history and feedback comments</p>
+                <p className="text-xs text-slate-500">Manage your ratings and community comments</p>
               </div>
             </div>
-            <span className="text-xs font-bold text-brand-700">Manage →</span>
+            <ArrowRight className="w-4 h-4 text-slate-400" />
           </Link>
 
           {user.role === 'ADMIN' && (
-            <Link to="/admin" className="flex items-center justify-between p-5 hover:bg-purple-50/50 transition-colors">
+            <Link to="/admin" className="flex items-center justify-between p-5 bg-purple-50/50 hover:bg-purple-50 transition-colors">
               <div className="flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-purple-700" />
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
                 <div>
-                  <h3 className="font-bold text-sm text-purple-900">Admin Control Center</h3>
-                  <p className="text-xs text-purple-700">Verify locations, handle reports, moderate reviews</p>
+                  <h3 className="font-bold text-sm text-purple-900">Admin Platform Moderation</h3>
+                  <p className="text-xs text-purple-700">Verify submissions, manage reports, and platform health</p>
                 </div>
               </div>
-              <span className="text-xs font-bold text-purple-800">Open Admin →</span>
+              <ArrowRight className="w-4 h-4 text-purple-700" />
             </Link>
           )}
         </div>
@@ -158,10 +179,10 @@ export const ProfilePage: React.FC = () => {
               logout();
               navigate('/login');
             }}
-            className="inline-flex items-center gap-2 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-5 py-2.5 rounded-xl"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-5 py-2.5 rounded-xl hover:bg-rose-100 transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            <span>Sign Out of Account</span>
+            <span>Sign Out</span>
           </button>
         </div>
 

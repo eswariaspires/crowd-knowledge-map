@@ -8,7 +8,7 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
-import { LocationItem, Review, Report, Category, ReviewStatus } from '../types';
+import { LocationItem, Review, Report, Category, SavedPlace, ReviewStatus } from '../types';
 import { INITIAL_LOCATIONS, INITIAL_REVIEWS, INITIAL_CATEGORIES } from '../utils/seedData';
 
 interface DataContextType {
@@ -16,16 +16,25 @@ interface DataContextType {
   reviews: Review[];
   reports: Report[];
   categories: Category[];
+  savedPlaces: SavedPlace[];
   loading: boolean;
   addLocation: (loc: Omit<LocationItem, 'id' | 'createdAt' | 'averageRating' | 'reviewCount' | 'verificationStatus' | 'isActive'>) => Promise<string>;
   approveLocation: (id: string) => Promise<void>;
+  requestChangesLocation: (id: string, reason: string) => Promise<void>;
   rejectLocation: (id: string, reason?: string) => Promise<void>;
+  resubmitLocation: (id: string, updatedData: Partial<LocationItem>) => Promise<void>;
   addReview: (locationId: string, rating: number, comment: string, userId: string, userName: string, userPhoto?: string) => Promise<void>;
   approveReview: (reviewId: string) => Promise<void>;
   rejectReview: (reviewId: string, reason?: string) => Promise<void>;
   deleteReview: (reviewId: string) => Promise<void>;
+  toggleSaveLocation: (locationId: string, userId: string) => Promise<boolean>;
+  isLocationSaved: (locationId: string, userId: string) => boolean;
+  getSavedLocations: (userId: string) => LocationItem[];
   addReport: (targetType: 'location' | 'review', targetId: string, reason: string, description?: string, reportedBy?: string, reportedByName?: string, targetTitle?: string) => Promise<void>;
   updateReportStatus: (reportId: string, status: 'REVIEWED' | 'RESOLVED' | 'DISMISSED', adminUid?: string) => Promise<void>;
+  addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
+  updateCategory: (id: string, data: Partial<Category>) => Promise<void>;
+  toggleCategoryActive: (id: string) => Promise<void>;
   getLocationById: (id: string) => LocationItem | undefined;
   getReviewsByLocationId: (locationId: string, includePendingForUser?: string) => Review[];
 }
@@ -49,7 +58,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: '2026-08-29T11:00:00Z',
     }
   ]);
-  const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>(
+    INITIAL_CATEGORIES.map(c => ({ ...c, isActive: true }))
+  );
+  const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Real-time Firestore subscriptions if configured
@@ -84,11 +96,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (docsData.length > 0) setReports(docsData);
       });
 
+      const savedUnsub = onSnapshot(collection(db, 'savedPlaces'), (snapshot) => {
+        const docsData: SavedPlace[] = snapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as SavedPlace));
+        setSavedPlaces(docsData);
+      });
+
+      const catUnsub = onSnapshot(collection(db, 'categories'), (snapshot) => {
+        const docsData: Category[] = snapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as Category));
+        if (docsData.length > 0) setCategories(docsData);
+      });
+
       setLoading(false);
       return () => {
         locUnsub();
         revUnsub();
         repUnsub();
+        savedUnsub();
+        catUnsub();
       };
     } catch (e) {
       console.warn('Firestore subscription warning:', e);
@@ -151,6 +181,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const requestChangesLocation = async (id: string, reason: string) => {
+    setLocations(prev => prev.map(l => l.id === id ? { ...l, verificationStatus: 'NEEDS_CHANGES', rejectionReason: reason } : l));
+    if (isFirebaseConfigured && db.collection) {
+      await updateDoc(doc(db, 'locations', id), { verificationStatus: 'NEEDS_CHANGES', rejectionReason: reason, updatedAt: new Date().toISOString() });
+    }
+  };
+
   const rejectLocation = async (id: string, reason?: string) => {
     setLocations(prev => prev.map(l => l.id === id ? { ...l, verificationStatus: 'REJECTED', rejectionReason: reason } : l));
     if (isFirebaseConfigured && db.collection) {
@@ -158,7 +195,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resubmitLocation = async (id: string, updatedData: Partial<LocationItem>) => {
+    setLocations(prev => prev.map(l => l.id === id ? { 
+      ...l, 
+      ...updatedData, 
+      verificationStatus: 'PENDING', 
+      rejectionReason: undefined, 
+      updatedAt: new Date().toISOString() 
+    } : l));
+
+    if (isFirebaseConfigured && db.collection) {
+      await updateDoc(doc(db, 'locations', id), { 
+        ...updatedData, 
+        verificationStatus: 'PENDING', 
+        rejectionReason: null, 
+        updatedAt: new Date().toISOString() 
+      });
+    }
+  };
+
   const addReview = async (locationId: string, rating: number, comment: string, userId: string, userName: string, userPhoto?: string) => {
+    // Check if user already has an active review for this location
+    const existing = reviews.find(r => r.locationId === locationId && r.userId === userId && r.status !== 'REJECTED');
+    if (existing) {
+      throw new Error('You have already submitted a review for this location.');
+    }
+
     const newRev: Review = {
       id: `rev-${Date.now()}`,
       locationId,
@@ -224,6 +286,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const toggleSaveLocation = async (locationId: string, userId: string): Promise<boolean> => {
+    const existing = savedPlaces.find(s => s.locationId === locationId && s.userId === userId);
+    if (existing) {
+      // Remove
+      setSavedPlaces(prev => prev.filter(s => s.id !== existing.id));
+      if (isFirebaseConfigured && db.collection) {
+        await deleteDoc(doc(db, 'savedPlaces', existing.id));
+      }
+      return false; // Now unsaved
+    } else {
+      // Save
+      const newSaved: SavedPlace = {
+        id: `save-${Date.now()}`,
+        userId,
+        locationId,
+        createdAt: new Date().toISOString(),
+      };
+      if (isFirebaseConfigured && db.collection) {
+        const docRef = await addDoc(collection(db, 'savedPlaces'), newSaved);
+        newSaved.id = docRef.id;
+      }
+      setSavedPlaces(prev => [newSaved, ...prev]);
+      return true; // Now saved
+    }
+  };
+
+  const isLocationSaved = (locationId: string, userId: string): boolean => {
+    return savedPlaces.some(s => s.locationId === locationId && s.userId === userId);
+  };
+
+  const getSavedLocations = (userId: string): LocationItem[] => {
+    const savedIds = new Set(savedPlaces.filter(s => s.userId === userId).map(s => s.locationId));
+    return locations.filter(l => savedIds.has(l.id));
+  };
+
   const addReport = async (
     targetType: 'location' | 'review', 
     targetId: string, 
@@ -262,6 +359,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addCategory = async (catData: Omit<Category, 'id'>) => {
+    const newCat: Category = {
+      ...catData,
+      id: `cat-${Date.now()}`,
+      isActive: true,
+    };
+    if (isFirebaseConfigured && db.collection) {
+      const docRef = await addDoc(collection(db, 'categories'), newCat);
+      newCat.id = docRef.id;
+    }
+    setCategories(prev => [...prev, newCat]);
+  };
+
+  const updateCategory = async (id: string, data: Partial<Category>) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+    if (isFirebaseConfigured && db.collection) {
+      await updateDoc(doc(db, 'categories', id), data);
+    }
+  };
+
+  const toggleCategoryActive = async (id: string) => {
+    const cat = categories.find(c => c.id === id);
+    if (!cat) return;
+    const newStatus = !(cat.isActive ?? true);
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, isActive: newStatus } : c));
+    if (isFirebaseConfigured && db.collection) {
+      await updateDoc(doc(db, 'categories', id), { isActive: newStatus });
+    }
+  };
+
   const getLocationById = (id: string) => locations.find(l => l.id === id);
 
   const getReviewsByLocationId = (locationId: string, includePendingForUser?: string) => {
@@ -280,16 +407,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       reviews,
       reports,
       categories,
+      savedPlaces,
       loading,
       addLocation,
       approveLocation,
+      requestChangesLocation,
       rejectLocation,
+      resubmitLocation,
       addReview,
       approveReview,
       rejectReview,
       deleteReview,
+      toggleSaveLocation,
+      isLocationSaved,
+      getSavedLocations,
       addReport,
       updateReportStatus,
+      addCategory,
+      updateCategory,
+      toggleCategoryActive,
       getLocationById,
       getReviewsByLocationId
     }}>

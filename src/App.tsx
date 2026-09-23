@@ -11,6 +11,7 @@ import { LocationDetailPage } from './pages/LocationDetailPage';
 import { AddLocationPage } from './pages/AddLocationPage';
 import { MyContributionsPage } from './pages/MyContributionsPage';
 import { MyReviewsPage } from './pages/MyReviewsPage';
+import { SavedPlacesPage } from './pages/SavedPlacesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -44,6 +45,14 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <AddLocationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedPlacesPage />
                 </ProtectedRoute>
               }
             />

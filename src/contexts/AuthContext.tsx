@@ -16,33 +16,31 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (name: string, email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
-  demoLogin: (role: UserRole) => void;
   updateProfileImage: (url: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Predefined Demo Profiles for Evaluation
-export const DEMO_USER: UserProfile = {
-  uid: 'demo-user-123',
-  name: 'Alex Student',
-  email: 'user@crowdmap.edu',
+// Seed Account Profiles
+export const SEED_USER: UserProfile = {
+  uid: 'seed-user-123',
+  name: 'Alex Chen',
+  email: 'alex.chen@example.com',
   role: 'USER',
   profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
   createdAt: '2026-08-01T10:00:00Z',
 };
 
-export const DEMO_ADMIN: UserProfile = {
-  uid: 'demo-admin-999',
-  name: 'Campus Administrator',
-  email: 'admin@crowdmap.edu',
+export const SEED_ADMIN: UserProfile = {
+  uid: 'seed-admin-999',
+  name: 'Platform Moderator',
+  email: 'admin@crowdmap.com',
   role: 'ADMIN',
   profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
   createdAt: '2026-07-01T08:00:00Z',
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Start UNAUTHENTICATED (null) so user experiences authentic Login/Register workflow
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -64,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               uid: fbUser.uid,
               name: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
               email: fbUser.email || '',
-              role: 'USER', // Always default to USER
+              role: 'USER', // Always default to USER per Section 20
               createdAt: new Date().toISOString(),
             };
             setUser(newUser);
@@ -85,15 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isFirebaseConfigured && auth.signInWithEmailAndPassword) {
       await signInWithEmailAndPassword(auth, email, pass);
     } else {
-      // Demo authentication logic
+      // Local auth fallback
       const lowerEmail = email.toLowerCase();
       if (lowerEmail.includes('admin')) {
-        setUser(DEMO_ADMIN);
+        setUser(SEED_ADMIN);
       } else {
         setUser({
-          ...DEMO_USER,
+          ...SEED_USER,
           email,
-          name: email.split('@')[0] || 'Alex Student',
+          name: email.split('@')[0] || 'Community Member',
         });
       }
     }
@@ -106,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         uid: userCred.user.uid,
         name,
         email,
-        role: 'USER', // Strict USER creation
+        role: 'USER', // Strict USER role assignment per Section 20
         createdAt: new Date().toISOString(),
       };
       await setDoc(doc(db, 'users', userCred.user.uid), newUser);
@@ -134,14 +132,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const demoLogin = (role: UserRole) => {
-    if (role === 'ADMIN') {
-      setUser(DEMO_ADMIN);
-    } else {
-      setUser(DEMO_USER);
-    }
-  };
-
   const updateProfileImage = async (url: string) => {
     if (!user) return;
     const updated = { ...user, profileImage: url, updatedAt: new Date().toISOString() };
@@ -156,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, demoLogin, updateProfileImage }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfileImage }}>
       {children}
     </AuthContext.Provider>
   );

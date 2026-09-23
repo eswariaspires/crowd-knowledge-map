@@ -77,7 +77,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ locationId, onSubmit }) 
           rows={3}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Share helpful details for students and locals (e.g. noise level, outlet availability, pricing, staff)..."
+          placeholder="Share helpful details for community members (e.g. noise level, outlet availability, quiet hours, staff)..."
           className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 placeholder-slate-400"
           required
         />

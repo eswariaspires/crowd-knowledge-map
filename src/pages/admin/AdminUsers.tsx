@@ -7,20 +7,19 @@ import { useData } from '../../contexts/DataContext';
 export const AdminUsers: React.FC = () => {
   const { locations, reviews } = useData();
 
-  // Demo User Directory List
   const userDirectory = [
     {
-      uid: 'demo-admin-999',
-      name: 'Campus Administrator',
-      email: 'admin@crowdmap.edu',
+      uid: 'seed-admin-999',
+      name: 'Platform Moderator',
+      email: 'admin@crowdmap.com',
       role: 'ADMIN',
       joined: '2026-07-01',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
     },
     {
-      uid: 'demo-user-123',
-      name: 'Alex Student',
-      email: 'alex@college.edu',
+      uid: 'seed-user-123',
+      name: 'Alex Chen',
+      email: 'alex.chen@example.com',
       role: 'USER',
       joined: '2026-08-01',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
@@ -28,7 +27,7 @@ export const AdminUsers: React.FC = () => {
     {
       uid: 'user-maria',
       name: 'Maria Santos',
-      email: 'maria.s@college.edu',
+      email: 'maria.santos@example.com',
       role: 'USER',
       joined: '2026-08-05',
       avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
@@ -36,7 +35,7 @@ export const AdminUsers: React.FC = () => {
     {
       uid: 'user-devon',
       name: 'Devon Vance',
-      email: 'devon.v@college.edu',
+      email: 'devon.vance@example.com',
       role: 'USER',
       joined: '2026-08-10',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
@@ -50,14 +49,14 @@ export const AdminUsers: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <AdminHeader
           title="User Directory & Authorization Audit"
-          subtitle="Audit registered users, active roles, and community contributions."
+          subtitle="Audit registered user accounts, assigned roles, and contribution activity."
         />
 
         <main className="p-6 space-y-6 max-w-7xl w-full mx-auto">
           
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-extrabold text-slate-900 text-sm">Registered Accounts ({userDirectory.length})</h3>
+              <h3 className="font-extrabold text-slate-900 text-sm">Registered User Accounts ({userDirectory.length})</h3>
               <span className="text-[11px] text-slate-400 font-mono">Roles enforced via Firestore Security Rules</span>
             </div>
 
@@ -75,8 +74,8 @@ export const AdminUsers: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {userDirectory.map((usr) => {
-                    const contribCount = locations.filter(l => l.createdBy === usr.uid || (usr.uid === 'demo-user-123' && l.createdBy === 'user-alex')).length;
-                    const reviewCount = reviews.filter(r => r.userId === usr.uid || (usr.uid === 'demo-user-123' && r.userId === 'user-sarah')).length;
+                    const contribCount = locations.filter(l => l.createdBy === usr.uid || (usr.uid === 'seed-user-123' && l.createdBy === 'user-alex')).length;
+                    const reviewCount = reviews.filter(r => r.userId === usr.uid || (usr.uid === 'seed-user-123' && r.userId === 'user-sarah')).length;
 
                     return (
                       <tr key={usr.uid} className="hover:bg-slate-50/80 transition-colors">
